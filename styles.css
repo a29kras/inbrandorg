@@ -73,8 +73,9 @@ pre { white-space: pre-wrap; overflow-wrap: anywhere; background: #fff; padding:
   .row-actions { flex-wrap: wrap; }
   h1 { font-size: 28px; }
 }
-/* ===== Вложенные аккордеоны: бренд → отдел ===== */
+/* ===== Вложенные аккордеоны: бренд → департамент → отдел ===== */
 .brand-group,
+.division-group,
 .dept-group {
   background: #fff;
   border: 1px solid #e8e9ec;
@@ -82,10 +83,12 @@ pre { white-space: pre-wrap; overflow-wrap: anywhere; background: #fff; padding:
   margin: 10px 0;
   overflow: hidden;
 }
-.brand-group { border-left: 4px solid #c90048; }
-.dept-group  { border-left: 4px solid #2563eb; margin: 8px 0; }
+.brand-group    { border-left: 4px solid #c90048; }
+.division-group { border-left: 4px solid #7c3aed; margin: 8px 0; }
+.dept-group     { border-left: 4px solid #2563eb; margin: 8px 0; }
 
 .brand-group > summary,
+.division-group > summary,
 .dept-group > summary {
   list-style: none;
   cursor: pointer;
@@ -99,9 +102,11 @@ pre { white-space: pre-wrap; overflow-wrap: anywhere; background: #fff; padding:
   transition: background .15s;
 }
 .brand-group > summary::-webkit-details-marker,
+.division-group > summary::-webkit-details-marker,
 .dept-group > summary::-webkit-details-marker { display: none; }
 
 .brand-group > summary::before,
+.division-group > summary::before,
 .dept-group > summary::before {
   content: '▸';
   color: #c90048;
@@ -111,25 +116,17 @@ pre { white-space: pre-wrap; overflow-wrap: anywhere; background: #fff; padding:
   margin-right: 8px;
 }
 .brand-group[open] > summary::before,
+.division-group[open] > summary::before,
 .dept-group[open] > summary::before { transform: rotate(90deg); }
 
 .brand-group > summary:hover,
+.division-group > summary:hover,
 .dept-group > summary:hover { background: #f0f2f5; }
 
 .mgr-name { flex: 1; }
 .mgr-count { font-size: 12px; color: #76808e; font-weight: 500; white-space: nowrap; }
 
-.brand-body { padding: 10px 14px 14px; border-top: 1px solid #eef0f3; }
-.dept-body  { padding: 8px 12px 12px; border-top: 1px solid #eef0f3; }
+.brand-body    { padding: 10px 14px 14px; border-top: 1px solid #eef0f3; }
+.division-body { padding: 8px 12px 12px; border-top: 1px solid #eef0f3; }
+.dept-body     { padding: 8px 12px 12px; border-top: 1px solid #eef0f3; }
 .dept-body .partner { margin: 8px 0; }
-
-/* Когда выбран конкретный бренд — отделы показываются без обёртки details */
-.brand-block { margin-bottom: 24px; }
-.brand-title {
-  font-size: 18px;
-  margin: 0 0 10px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 12px;
-}
