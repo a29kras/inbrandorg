@@ -6,7 +6,7 @@
 
   // ===== НАСТРОЙКИ =====
   const SHEET_ID = "10898Bo6l9yyogVuuqIAfZjhvQgl1TxKU-5QX4T_IF8A";
-  const SHEET_NAME = "Сотрудники"; // при необходимости замените на точное имя листа
+  const SHEET_NAME = "Сотрудники";
 
   // ===== ЗАГРУЗКА ДАННЫХ =====
   async function loadFromSheet() {
@@ -21,14 +21,15 @@
     return rows.map(r => {
       if (!r.c) return null;
       return {
-        brand:    r.c[0]?.v || '',
-        dept:     r.c[2]?.v || '',
-        manager:  r.c[3]?.v || '',
-        position: r.c[4]?.v || '',
-        name:     r.c[5]?.v || '',
-        status:   r.c[6]?.v || '',
-        ckp:      r.c[7]?.v || '',
-        contact:  r.c[8]?.v || '',
+        brand:    r.c[0]?.v || '',   // A — Бренд
+        division: r.c[1]?.v || '',   // B — Департамент
+        dept:     r.c[2]?.v || '',   // C — Отдел
+        manager:  r.c[3]?.v || '',   // D — Руководитель
+        position: r.c[4]?.v || '',   // E — Должность
+        name:     r.c[5]?.v || '',   // F — ФИО
+        status:   r.c[6]?.v || '',   // G — Статус
+        ckp:      r.c[7]?.v || '',   // H — ЦКП
+        contact:  r.c[8]?.v || '',   // I — По каким вопросам
       };
     }).filter(e => e && e.name && e.name.trim() !== '');
   }
@@ -50,7 +51,7 @@
     return label;
   }
 
-  // ===== РЕНДЕР: БРЕНД → ОТДЕЛ → СОТРУДНИКИ =====
+  // ===== РЕНДЕР: БРЕНД → ДЕПАРТАМЕНТ → ОТДЕЛ → СОТРУДНИКИ =====
   let employees = [];
 
   function draw() {
@@ -77,67 +78,68 @@
       return;
     }
 
-    // 2. Группировка: Бренд → Отдел → Сотрудники
+    // 2. Группировка: Бренд → Департамент → Отдел → Сотрудники
     const byBrand = new Map();
     for (const e of list) {
-      const brand = e.brand || 'Без бренда';
-      const dept  = e.dept  || 'Без отдела';
+      const brand    = e.brand    || 'Без бренда';
+      const division = e.division || 'Без департамента';
+      const dept     = e.dept     || 'Без отдела';
 
       if (!byBrand.has(brand)) byBrand.set(brand, new Map());
-      const byDept = byBrand.get(brand);
+      const byDivision = byBrand.get(brand);
+      if (!byDivision.has(division)) byDivision.set(division, new Map());
+      const byDept = byDivision.get(division);
       if (!byDept.has(dept)) byDept.set(dept, []);
       byDept.get(dept).push(e);
     }
 
-    // 3. Рендер: если выбран конкретный бренд — только его отделы,
-    //    иначе — все бренды, внутри каждого отделы.
-    const brandsToRender = brandF
-      ? [...byBrand.keys()]                       // только выбранный бренд
-      : [...byBrand.keys()].sort((a, b) => a.localeCompare(b, 'ru'));
+    // 3. Рендер вложенных details
+    const html = [...byBrand.keys()].sort((a, b) => a.localeCompare(b, 'ru')).map(brand => {
+      const byDivision = byBrand.get(brand);
+      const brandItems = [...byDivision.values()].flatMap(m => [...m.values()].flat());
 
-    const html = brandsToRender.map(brand => {
-      const byDept = byBrand.get(brand);
-      if (!byDept) return '';
-      const brandItems = [...byDept.values()].flat();
+      const divisionsHtml = [...byDivision.keys()].sort((a, b) => a.localeCompare(b, 'ru')).map(division => {
+        const byDept = byDivision.get(division);
+        const divisionItems = [...byDept.values()].flat();
 
-      const deptsHtml = [...byDept.keys()].sort((a, b) => a.localeCompare(b, 'ru')).map(dept => {
-        const items = byDept.get(dept);
-        const cards = items.map(e => `
-          <article class="partner ${e.status === 'Вакансия' ? 'vacancy' : ''}">
-            <div>
-              <strong>${esc(e.position || '—')}</strong>
-              <div class="partner-name">${esc(e.name)}</div>
-              ${e.manager && e.manager !== '-' ? `<small><b>Руководитель:</b> ${esc(e.manager)}</small>` : ''}
-              ${e.ckp ? `<small><b>ЦКП:</b> ${esc(e.ckp)}</small>` : ''}
-              ${e.contact ? `<small><b>Обращаться:</b> ${esc(e.contact)}</small>` : ''}
-            </div>
-            <div class="row-actions">
-              <span class="badge ${e.status === 'Вакансия' ? 'badge-vacancy' : ''}">${esc(e.status || '—')}</span>
-            </div>
-          </article>
-        `).join('');
+        const deptsHtml = [...byDept.keys()].sort((a, b) => a.localeCompare(b, 'ru')).map(dept => {
+          const items = byDept.get(dept);
+          const cards = items.map(e => `
+            <article class="partner ${e.status === 'Вакансия' ? 'vacancy' : ''}">
+              <div>
+                <strong>${esc(e.position || '—')}</strong>
+                <div class="partner-name">${esc(e.name)}</div>
+                ${e.manager && e.manager !== '-' ? `<small><b>Руководитель:</b> ${esc(e.manager)}</small>` : ''}
+                ${e.ckp ? `<small><b>ЦКП:</b> ${esc(e.ckp)}</small>` : ''}
+                ${e.contact ? `<small><b>Обращаться:</b> ${esc(e.contact)}</small>` : ''}
+              </div>
+              <div class="row-actions">
+                <span class="badge ${e.status === 'Вакансия' ? 'badge-vacancy' : ''}">${esc(e.status || '—')}</span>
+              </div>
+            </article>
+          `).join('');
+
+          return `
+            <details class="dept-group">
+              <summary>
+                <span class="mgr-name">🏢 ${esc(dept)}</span>
+                <span class="mgr-count">${counts(items)}</span>
+              </summary>
+              <div class="dept-body">${cards}</div>
+            </details>
+          `;
+        }).join('');
 
         return `
-          <details class="dept-group">
+          <details class="division-group">
             <summary>
-              <span class="mgr-name">🏢 ${esc(dept)}</span>
-              <span class="mgr-count">${counts(items)}</span>
+              <span class="mgr-name">🏛 ${esc(division)}</span>
+              <span class="mgr-count">${counts(divisionItems)}</span>
             </summary>
-            <div class="dept-body">${cards}</div>
+            <div class="division-body">${deptsHtml}</div>
           </details>
         `;
       }).join('');
-
-      // Если выбран конкретный бренд — не оборачиваем в details бренда,
-      // показываем сразу отделы (чтобы не было лишнего клика).
-      if (brandF) {
-        return `
-          <section class="brand-block">
-            <h2 class="brand-title">🏷 ${esc(brand)} <span class="mgr-count">${counts(brandItems)}</span></h2>
-            ${deptsHtml}
-          </section>
-        `;
-      }
 
       return `
         <details class="brand-group">
@@ -145,7 +147,7 @@
             <span class="mgr-name">🏷 ${esc(brand)}</span>
             <span class="mgr-count">${counts(brandItems)}</span>
           </summary>
-          <div class="brand-body">${deptsHtml}</div>
+          <div class="brand-body">${divisionsHtml}</div>
         </details>
       `;
     }).join('');
@@ -155,7 +157,7 @@
 
   // ===== ИНИЦИАЛИЗАЦИЯ =====
   try {
-    $('intro').textContent = 'Навигатор по оргструктуре: выберите бренд, затем раскройте отдел, чтобы увидеть сотрудников.';
+    $('intro').textContent = 'Навигатор по оргструктуре: бренд → департамент → отдел → сотрудники. Нажмите на уровень, чтобы раскрыть.';
     employees = await loadFromSheet();
 
     fillSelect('f-brand', 'brand', 'Все бренды', employees);
