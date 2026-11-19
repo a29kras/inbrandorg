@@ -41,82 +41,121 @@
       vals.map(v => `<option value="${esc(v)}">${esc(v)}</option>`).join('');
   }
 
-  // ===== РЕНДЕР: ГРУППИРОВКА ПО РУКОВОДИТЕЛЮ =====
+  // ===== ХЕЛПЕРЫ ДЛЯ СЧЁТЧИКОВ =====
+  function counts(items) {
+    const total = items.filter(e => e.status !== 'Вакансия').length;
+    const vac = items.filter(e => e.status === 'Вакансия').length;
+    let label = `${total} сотр.`;
+    if (vac) label += ` · ${vac} ваканс.`;
+    return label;
+  }
+
+  // ===== РЕНДЕР: БРЕНД → ОТДЕЛ → РУКОВОДИТЕЛЬ → СОТРУДНИКИ =====
   let employees = [];
 
   function draw() {
-    const brand = $('f-brand').value;
-    const dept = $('f-dept').value;
-    const manager = $('f-manager').value;
-    const status = $('f-status').value;
+    const brandF = $('f-brand').value;
+    const deptF = $('f-dept').value;
+    const managerF = $('f-manager').value;
+    const statusF = $('f-status').value;
     const q = $('search').value.toLocaleLowerCase('ru');
 
     // 1. Фильтрация
     const list = employees.filter(e => {
-      if (brand && e.brand !== brand) return false;
-      if (dept && e.dept !== dept) return false;
-      if (manager && e.manager !== manager) return false;
-      if (status && e.status !== status) return false;
+      if (brandF && e.brand !== brandF) return false;
+      if (deptF && e.dept !== deptF) return false;
+      if (managerF && e.manager !== managerF) return false;
+      if (statusF && e.status !== statusF) return false;
       if (q && !(e.name + ' ' + e.position).toLocaleLowerCase('ru').includes(q)) return false;
       return true;
     });
 
-    const total = list.filter(e => e.status !== 'Вакансия').length;
-    const vac = list.filter(e => e.status === 'Вакансия').length;
-    $('count').textContent = `Сотрудников: ${total} · Вакансий: ${vac}`;
+    $('count').textContent = `Сотрудников: ${list.filter(e => e.status !== 'Вакансия').length} · Вакансий: ${list.filter(e => e.status === 'Вакансия').length}`;
 
-    // 2. Группировка по руководителю
-    const groups = new Map();
-    for (const e of list) {
-      const mgr = (e.manager && e.manager.trim() && e.manager !== '-') ? e.manager : 'Без руководителя';
-      if (!groups.has(mgr)) groups.set(mgr, []);
-      groups.get(mgr).push(e);
-    }
-
-    // 3. Сортировка руководителей по алфавиту
-    const sortedManagers = [...groups.keys()].sort((a, b) => a.localeCompare(b, 'ru'));
-
-    if (!sortedManagers.length) {
+    if (!list.length) {
       $('partner-list').innerHTML = '<p>Нет данных по выбранным фильтрам.</p>';
       return;
     }
 
-    // 4. Рендер аккордеонов
-    $('partner-list').innerHTML = sortedManagers.map(mgr => {
-      const items = groups.get(mgr);
-      const totalItems = items.filter(e => e.status !== 'Вакансия').length;
-      const vacItems = items.filter(e => e.status === 'Вакансия').length;
+    // 2. Группировка: Бренд → Отдел → Руководитель → Сотрудники
+    const byBrand = new Map();
+    for (const e of list) {
+      const brand = e.brand || 'Без бренда';
+      const dept  = e.dept  || 'Без отдела';
+      const mgr   = (e.manager && e.manager.trim() && e.manager !== '-') ? e.manager : 'Без руководителя';
 
-      const body = items.map(e => `
-        <article class="partner ${e.status === 'Вакансия' ? 'vacancy' : ''}">
-          <div>
-            <strong>${esc(e.position || '—')}</strong>
-            <div class="partner-name">${esc(e.name)}</div>
-            <small>${esc(e.brand || '—')} · ${esc(e.dept || '—')}</small>
-            ${e.ckp ? `<small><b>ЦКП:</b> ${esc(e.ckp)}</small>` : ''}
-            ${e.contact ? `<small><b>Обращаться:</b> ${esc(e.contact)}</small>` : ''}
-          </div>
-          <div class="row-actions">
-            <span class="badge ${e.status === 'Вакансия' ? 'badge-vacancy' : ''}">${esc(e.status || '—')}</span>
-          </div>
-        </article>
-      `).join('');
+      if (!byBrand.has(brand)) byBrand.set(brand, new Map());
+      const byDept = byBrand.get(brand);
+      if (!byDept.has(dept)) byDept.set(dept, new Map());
+      const byMgr = byDept.get(dept);
+      if (!byMgr.has(mgr)) byMgr.set(mgr, []);
+      byMgr.get(mgr).push(e);
+    }
+
+    // 3. Рендер вложенных details
+    const html = [...byBrand.keys()].sort((a, b) => a.localeCompare(b, 'ru')).map(brand => {
+      const byDept = byBrand.get(brand);
+      const brandItems = [...byDept.values()].flatMap(m => [...m.values()].flat());
+
+      const deptsHtml = [...byDept.keys()].sort((a, b) => a.localeCompare(b, 'ru')).map(dept => {
+        const byMgr = byDept.get(dept);
+        const deptItems = [...byMgr.values()].flat();
+
+        const mgrsHtml = [...byMgr.keys()].sort((a, b) => a.localeCompare(b, 'ru')).map(mgr => {
+          const items = byMgr.get(mgr);
+          const cards = items.map(e => `
+            <article class="partner ${e.status === 'Вакансия' ? 'vacancy' : ''}">
+              <div>
+                <strong>${esc(e.position || '—')}</strong>
+                <div class="partner-name">${esc(e.name)}</div>
+                ${e.ckp ? `<small><b>ЦКП:</b> ${esc(e.ckp)}</small>` : ''}
+                ${e.contact ? `<small><b>Обращаться:</b> ${esc(e.contact)}</small>` : ''}
+              </div>
+              <div class="row-actions">
+                <span class="badge ${e.status === 'Вакансия' ? 'badge-vacancy' : ''}">${esc(e.status || '—')}</span>
+              </div>
+            </article>
+          `).join('');
+
+          return `
+            <details class="mgr-group">
+              <summary>
+                <span class="mgr-name">👤 ${esc(mgr)}</span>
+                <span class="mgr-count">${counts(items)}</span>
+              </summary>
+              <div class="mgr-body">${cards}</div>
+            </details>
+          `;
+        }).join('');
+
+        return `
+          <details class="dept-group">
+            <summary>
+              <span class="mgr-name">🏢 ${esc(dept)}</span>
+              <span class="mgr-count">${counts(deptItems)}</span>
+            </summary>
+            <div class="dept-body">${mgrsHtml}</div>
+          </details>
+        `;
+      }).join('');
 
       return `
-        <details class="mgr-group">
+        <details class="brand-group">
           <summary>
-            <span class="mgr-name">👤 ${esc(mgr)}</span>
-            <span class="mgr-count">${totalItems} сотр.${vacItems ? ` · ${vacItems} ваканс.` : ''}</span>
+            <span class="mgr-name">🏷 ${esc(brand)}</span>
+            <span class="mgr-count">${counts(brandItems)}</span>
           </summary>
-          <div class="mgr-body">${body}</div>
+          <div class="brand-body">${deptsHtml}</div>
         </details>
       `;
     }).join('');
+
+    $('partner-list').innerHTML = html;
   }
 
   // ===== ИНИЦИАЛИЗАЦИЯ =====
   try {
-    $('intro').textContent = 'Навигатор по оргструктуре: сотрудники сгруппированы по руководителям. Нажмите на руководителя, чтобы раскрыть список.';
+    $('intro').textContent = 'Навигатор по оргструктуре: бренды → отделы → руководители → сотрудники. Нажмите на уровень, чтобы раскрыть.';
     employees = await loadFromSheet();
 
     fillSelect('f-brand', 'brand', 'Все бренды', employees);
