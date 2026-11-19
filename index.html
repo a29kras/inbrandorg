@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Оргструктура ИНБРЕНД</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main>
+    <header>
+      <div>
+        <h1>Оргструктура ИНБРЕНД</h1>
+        <p id="intro">Загрузка данных…</p>
+      </div>
+    </header>
+
+    <nav>
+      <button id="list-tab">Сотрудники</button>
+      <button id="all-tab">Все бренды</button>
+    </nav>
+
+    <section id="filters">
+      <label>
+        Бренд
+        <select id="f-brand"><option value="">Все бренды</option></select>
+      </label>
+      <label>
+        Отдел
+        <select id="f-dept"><option value="">Все отделы</option></select>
+      </label>
+      <label>
+        Руководитель
+        <select id="f-manager"><option value="">Все руководители</option></select>
+      </label>
+      <label>
+        Статус
+        <select id="f-status">
+          <option value="">Все статусы</option>
+          <option value="Штат">Штат</option>
+          <option value="Вакансия">Вакансия</option>
+        </select>
+      </label>
+      <label>
+        Поиск по ФИО / роли
+        <input type="search" id="search" placeholder="Начните вводить…">
+      </label>
+    </section>
+
+    <p id="count">Загрузка…</p>
+    <section id="partner-list"></section>
+    <p id="status" class="error"></p>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
