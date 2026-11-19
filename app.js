@@ -6,9 +6,9 @@
 
   // ===== НАСТРОЙКИ =====
   const SHEET_ID = "10898Bo6l9yyogVuuqIAfZjhvQgl1TxKU-5QX4T_IF8A";
-  const SHEET_NAME = "Сотрудники"; // или "Сотрудники"
+  const SHEET_NAME = "Сотрудники"; // при необходимости замените на точное имя листа
 
-  // ===== ЗАГРУЗКА ДАННЫХ ИЗ GOOGLE SHEETS =====
+  // ===== ЗАГРУЗКА ДАННЫХ =====
   async function loadFromSheet() {
     const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(SHEET_NAME)}`;
     const resp = await fetch(url);
@@ -18,13 +18,6 @@
     const data = JSON.parse(jsonStr);
     const rows = data.table.rows;
 
-console.log('КОЛОНКИ:', data.table.cols.map((c, i) => i + ': ' + (c.label || c.id || '(без имени)')));
-console.log('ПЕРВАЯ СТРОКА:', data.table.rows[0]?.c?.map((c, i) => i + ': ' + (c?.v ?? '')));
-    
-    // ВАЖНО: индексы колонок c[0], c[1]... = столбцы A, B, C...
-    // Проверьте их по листу "Навигатор":
-    // A - Бренд, C - Отдел, D - Руководитель, E - Должность,
-    // F - ФИО, G - Статус, H - ЦКП, I - По каким вопросам
     return rows.map(r => {
       if (!r.c) return null;
       return {
@@ -48,7 +41,7 @@ console.log('ПЕРВАЯ СТРОКА:', data.table.rows[0]?.c?.map((c, i) => i
       vals.map(v => `<option value="${esc(v)}">${esc(v)}</option>`).join('');
   }
 
-  // ===== РЕНДЕР (аналог draw() из manager.js) =====
+  // ===== РЕНДЕР: ГРУППИРОВКА ПО РУКОВОДИТЕЛЮ =====
   let employees = [];
 
   function draw() {
@@ -58,6 +51,7 @@ console.log('ПЕРВАЯ СТРОКА:', data.table.rows[0]?.c?.map((c, i) => i
     const status = $('f-status').value;
     const q = $('search').value.toLocaleLowerCase('ru');
 
+    // 1. Фильтрация
     const list = employees.filter(e => {
       if (brand && e.brand !== brand) return false;
       if (dept && e.dept !== dept) return false;
@@ -71,13 +65,34 @@ console.log('ПЕРВАЯ СТРОКА:', data.table.rows[0]?.c?.map((c, i) => i
     const vac = list.filter(e => e.status === 'Вакансия').length;
     $('count').textContent = `Сотрудников: ${total} · Вакансий: ${vac}`;
 
-    $('partner-list').innerHTML = list.length
-      ? list.map(e => `
+    // 2. Группировка по руководителю
+    const groups = new Map();
+    for (const e of list) {
+      const mgr = (e.manager && e.manager.trim() && e.manager !== '-') ? e.manager : 'Без руководителя';
+      if (!groups.has(mgr)) groups.set(mgr, []);
+      groups.get(mgr).push(e);
+    }
+
+    // 3. Сортировка руководителей по алфавиту
+    const sortedManagers = [...groups.keys()].sort((a, b) => a.localeCompare(b, 'ru'));
+
+    if (!sortedManagers.length) {
+      $('partner-list').innerHTML = '<p>Нет данных по выбранным фильтрам.</p>';
+      return;
+    }
+
+    // 4. Рендер аккордеонов
+    $('partner-list').innerHTML = sortedManagers.map(mgr => {
+      const items = groups.get(mgr);
+      const totalItems = items.filter(e => e.status !== 'Вакансия').length;
+      const vacItems = items.filter(e => e.status === 'Вакансия').length;
+
+      const body = items.map(e => `
         <article class="partner ${e.status === 'Вакансия' ? 'vacancy' : ''}">
           <div>
             <strong>${esc(e.position || '—')}</strong>
             <div class="partner-name">${esc(e.name)}</div>
-            <small>${esc(e.brand || '—')} · ${esc(e.dept || '—')}${e.manager && e.manager !== '-' ? ' · Руководитель: ' + esc(e.manager) : ''}</small>
+            <small>${esc(e.brand || '—')} · ${esc(e.dept || '—')}</small>
             ${e.ckp ? `<small><b>ЦКП:</b> ${esc(e.ckp)}</small>` : ''}
             ${e.contact ? `<small><b>Обращаться:</b> ${esc(e.contact)}</small>` : ''}
           </div>
@@ -85,13 +100,23 @@ console.log('ПЕРВАЯ СТРОКА:', data.table.rows[0]?.c?.map((c, i) => i
             <span class="badge ${e.status === 'Вакансия' ? 'badge-vacancy' : ''}">${esc(e.status || '—')}</span>
           </div>
         </article>
-      `).join('')
-      : '<p>Нет данных по выбранным фильтрам.</p>';
+      `).join('');
+
+      return `
+        <details class="mgr-group">
+          <summary>
+            <span class="mgr-name">👤 ${esc(mgr)}</span>
+            <span class="mgr-count">${totalItems} сотр.${vacItems ? ` · ${vacItems} ваканс.` : ''}</span>
+          </summary>
+          <div class="mgr-body">${body}</div>
+        </details>
+      `;
+    }).join('');
   }
 
   // ===== ИНИЦИАЛИЗАЦИЯ =====
   try {
-    $('intro').textContent = 'Навигатор по оргструктуре: бренды, отделы, руководители, ЦКП и зоны ответственности.';
+    $('intro').textContent = 'Навигатор по оргструктуре: сотрудники сгруппированы по руководителям. Нажмите на руководителя, чтобы раскрыть список.';
     employees = await loadFromSheet();
 
     fillSelect('f-brand', 'brand', 'Все бренды', employees);
