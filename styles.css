@@ -73,3 +73,46 @@ pre { white-space: pre-wrap; overflow-wrap: anywhere; background: #fff; padding:
   .row-actions { flex-wrap: wrap; }
   h1 { font-size: 28px; }
 }
+/* ===== Аккордеон по руководителям ===== */
+.mgr-group {
+  background: #fff;
+  border: 1px solid #e8e9ec;
+  border-radius: 12px;
+  margin: 10px 0;
+  overflow: hidden;
+}
+.mgr-group > summary {
+  list-style: none;
+  cursor: pointer;
+  padding: 16px 18px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  font-weight: 650;
+  background: #fafbfc;
+  transition: background .15s;
+}
+.mgr-group > summary::-webkit-details-marker { display: none; }
+.mgr-group > summary::before {
+  content: '▸';
+  color: #c90048;
+  font-size: 14px;
+  transition: transform .15s;
+  display: inline-block;
+  margin-right: 8px;
+}
+.mgr-group[open] > summary::before { transform: rotate(90deg); }
+.mgr-group > summary:hover { background: #f0f2f5; }
+.mgr-name { flex: 1; }
+.mgr-count {
+  font-size: 12px;
+  color: #76808e;
+  font-weight: 500;
+  white-space: nowrap;
+}
+.mgr-body {
+  padding: 8px 12px 12px;
+  border-top: 1px solid #eef0f3;
+}
+.mgr-body .partner { margin: 8px 0; }
