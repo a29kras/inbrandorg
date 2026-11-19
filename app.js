@@ -18,6 +18,9 @@
     const data = JSON.parse(jsonStr);
     const rows = data.table.rows;
 
+console.log('КОЛОНКИ:', data.table.cols.map((c, i) => i + ': ' + (c.label || c.id || '(без имени)')));
+console.log('ПЕРВАЯ СТРОКА:', data.table.rows[0]?.c?.map((c, i) => i + ': ' + (c?.v ?? '')));
+    
     // ВАЖНО: индексы колонок c[0], c[1]... = столбцы A, B, C...
     // Проверьте их по листу "Навигатор":
     // A - Бренд, C - Отдел, D - Руководитель, E - Должность,
