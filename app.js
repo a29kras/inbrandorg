@@ -6,7 +6,7 @@
 
   // ===== НАСТРОЙКИ =====
   const SHEET_ID = "10898Bo6l9yyogVuuqIAfZjhvQgl1TxKU-5QX4T_IF8A";
-  const SHEET_NAME = "Навигатор"; // или "Сотрудники"
+  const SHEET_NAME = "Сотрудники"; // или "Сотрудники"
 
   // ===== ЗАГРУЗКА ДАННЫХ ИЗ GOOGLE SHEETS =====
   async function loadFromSheet() {
