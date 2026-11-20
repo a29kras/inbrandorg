@@ -18,7 +18,7 @@
     const data = JSON.parse(jsonStr);
     const rows = data.table.rows;
 
-        return rows.map(r => {
+           return rows.map(r => {
       if (!r.c) return null;
       return {
         brand:    r.c[0]?.v || '',   // A — Бренд
