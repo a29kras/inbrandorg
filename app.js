@@ -18,7 +18,7 @@
     const data = JSON.parse(jsonStr);
     const rows = data.table.rows;
 
-    return rows.map(r => {
+        return rows.map(r => {
       if (!r.c) return null;
       return {
         brand:    r.c[0]?.v || '',   // A — Бренд
@@ -31,8 +31,9 @@
         ckp:      r.c[7]?.v || '',   // H — ЦКП
         contact:  r.c[8]?.v || '',   // I — По каким вопросам
       };
-    }).filter(e => e && e.name && e.name.trim() !== '');
-  }
+    })
+    .filter(e => e && e.name && e.name.trim() !== '')
+    .filter(e => !/^(фио|ф\.?и\.?о\.?|фио\s*\/\s*роль|должность|статус)$/i.test(e.name.trim()));
 
   // ===== ЗАПОЛНЕНИЕ СЕЛЕКТОВ =====
   function fillSelect(id, key, allLabel, employees) {
