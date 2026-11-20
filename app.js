@@ -34,7 +34,7 @@
     })
     .filter(e => e && e.name && e.name.trim() !== '')
     .filter(e => !/^(фио|ф\.?и\.?о\.?|фио\s*\/\s*роль|должность|статус)$/i.test(e.name.trim()));
-
+ }
   // ===== ЗАПОЛНЕНИЕ СЕЛЕКТОВ =====
   function fillSelect(id, key, allLabel, employees) {
     const sel = $(id);
