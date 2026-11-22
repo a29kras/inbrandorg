@@ -7,7 +7,7 @@
   const SHEET_ID = "10898Bo6l9yyogVuuqIAfZjhvQgl1TxKU-5QX4T_IF8A";
   const SHEET_NAME = "Сотрудники";
 
-  // Жёсткий порядок брендов
+  // Жёсткий порядок брендов (Холдинг — первым)
   const BRAND_ORDER = ["Холдинг", "ЧИО ЧИО", "БИГБРО", "ПЛОЩАДКА", "ИНДИ"];
 
   async function loadFromSheet() {
@@ -58,7 +58,7 @@
     return [...known, ...unknown];
   }
 
-        function render(tree, total) {
+  function render(tree, total) {
     $('count').textContent = `Всего сотрудников: ${total}`;
 
     const brands = sortBrands([...tree.keys()]);
@@ -142,3 +142,22 @@
     `;
     $('schema').innerHTML = html;
   }
+
+  try {
+    $('intro').textContent = 'Дивизиональная структура: холдинг → бренды → департаменты → отделы. Нажмите на отдел, чтобы раскрыть сотрудников.';
+    const employees = await loadFromSheet();
+    const tree = buildTree(employees);
+    render(tree, employees.length);
+
+    // Кнопки «Раскрыть все» / «Свернуть все»
+    $('expand-all').addEventListener('click', () => {
+      document.querySelectorAll('#schema details').forEach(d => d.open = true);
+    });
+    $('collapse-all').addEventListener('click', () => {
+      document.querySelectorAll('#schema details').forEach(d => d.open = false);
+    });
+  } catch (e) {
+    $('count').textContent = e.message;
+    $('count').className = 'error';
+  }
+})();
