@@ -58,7 +58,7 @@
     return [...known, ...unknown];
   }
 
-  function render(tree, total) {
+    function render(tree, total) {
     $('count').textContent = `Всего сотрудников: ${total}`;
 
     const brands = sortBrands([...tree.keys()]);
@@ -69,6 +69,7 @@
 
     const html = `
       <div class="org-root">ИНБРЕНД (Холдинг)</div>
+      <div class="org-trunk"></div>
       <div class="org-brands">
         ${brands.map(brand => {
           const byDiv = tree.get(brand);
@@ -76,6 +77,7 @@
 
           return `
             <div class="org-brand">
+              <div class="org-brand-branch"></div>
               <div class="org-brand-title">🏷 ${esc(brand)}</div>
               <div class="org-divisions">
                 ${divs.map(div => {
