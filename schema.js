@@ -8,7 +8,7 @@
   const SHEET_NAME = "Сотрудники";
 
   // Жёсткий порядок брендов
-  const BRAND_ORDER = ["ЧИО ЧИО", "БИГБРО", "ПЛОЩАДКА", "ИНДИ"];
+  const BRAND_ORDER = ["Холдинг", "ЧИО ЧИО", "БИГБРО", "ПЛОЩАДКА", "ИНДИ"];
 
   async function loadFromSheet() {
     const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(SHEET_NAME)}`;
