@@ -58,7 +58,7 @@
     return [...known, ...unknown];
   }
 
-        function render(tree, total) {
+         function render(tree, total) {
     $('count').textContent = `Всего сотрудников: ${total}`;
 
     const brands = sortBrands([...tree.keys()]);
@@ -67,55 +67,67 @@
       return;
     }
 
-    // Формируем содержимое главного блока "ИНБРЕНД (Холдинг)"
     const brandsHtml = brands.map(brand => {
       const byDiv = tree.get(brand);
       const divs = [...byDiv.keys()].sort((a, b) => a.localeCompare(b, 'ru'));
+      
+      // Считаем общее количество сотрудников в бренде
+      const brandItems = [...byDiv.values()].flatMap(m => [...m.values()].flat());
+      const totalEmp = brandItems.filter(e => e.status !== 'Вакансия').length;
+      const vac = brandItems.filter(e => e.status === 'Вакансия').length;
 
       return `
-        <div class="org-brand">
-          <div class="org-brand-title">🏷 ${esc(brand)}</div>
-          <div class="org-divisions">
-            ${divs.map(div => {
-              const byDept = byDiv.get(div);
-              const depts = [...byDept.keys()].sort((a, b) => a.localeCompare(b, 'ru'));
-              return `
-                <div class="org-division">
-                  <div class="org-division-title">🏛 ${esc(div)}</div>
-                  <div class="org-depts">
-                    ${depts.map(dept => {
-                      const items = byDept.get(dept);
-                      const totalEmp = items.filter(e => e.status !== 'Вакансия').length;
-                      const vac = items.filter(e => e.status === 'Вакансия').length;
-                      const leader = items.find(e => /руководител|директор|главн/i.test(e.position));
+        <details class="org-brand-details" open>
+          <summary class="org-brand-summary">
+            <span class="org-brand-title">🏷 ${esc(brand)}</span>
+            <span class="org-brand-meta">
+              <span class="org-badge">${totalEmp} сотр.${vac ? ` · ${vac} вак.` : ''}</span>
+              <span class="org-toggle-icon"></span>
+            </span>
+          </summary>
+          <div class="org-brand-body">
+            <div class="org-divisions">
+              ${divs.map(div => {
+                const byDept = byDiv.get(div);
+                const depts = [...byDept.keys()].sort((a, b) => a.localeCompare(b, 'ru'));
+                return `
+                  <div class="org-division">
+                    <div class="org-division-title">🏛 ${esc(div)}</div>
+                    <div class="org-depts">
+                      ${depts.map(dept => {
+                        const items = byDept.get(dept);
+                        const dTotal = items.filter(e => e.status !== 'Вакансия').length;
+                        const dVac = items.filter(e => e.status === 'Вакансия').length;
+                        const leader = items.find(e => /руководител|директор|главн/i.test(e.position));
 
-                      const cards = items
-                        .slice()
-                        .sort((a, b) => a.name.localeCompare(b.name, 'ru'))
-                        .map(e => `
-                          <div class="org-emp ${e.status === 'Вакансия' ? 'vacancy' : ''}">
-                            <div class="org-emp-name">${esc(e.name)}</div>
-                            <div class="org-emp-pos">${esc(e.position || '—')}</div>
-                          </div>
-                        `).join('');
+                        const cards = items
+                          .slice()
+                          .sort((a, b) => a.name.localeCompare(b.name, 'ru'))
+                          .map(e => `
+                            <div class="org-emp ${e.status === 'Вакансия' ? 'vacancy' : ''}">
+                              <div class="org-emp-name">${esc(e.name)}</div>
+                              <div class="org-emp-pos">${esc(e.position || '—')}</div>
+                            </div>
+                          `).join('');
 
-                      return `
-                        <details class="org-dept">
-                          <summary>
-                            <span class="org-dept-title">🏢 ${esc(dept)}</span>
-                            <span class="org-badge">${totalEmp} сотр.${vac ? ` · ${vac} вак.` : ''}</span>
-                          </summary>
-                          ${leader ? `<div class="org-dept-leader">Руководитель: ${esc(leader.name)}</div>` : ''}
-                          <div class="org-emps">${cards}</div>
-                        </details>
-                      `;
-                    }).join('')}
+                        return `
+                          <details class="org-dept">
+                            <summary>
+                              <span class="org-dept-title">🏢 ${esc(dept)}</span>
+                              <span class="org-badge">${dTotal} сотр.${dVac ? ` · ${dVac} вак.` : ''}</span>
+                            </summary>
+                            ${leader ? `<div class="org-dept-leader">Руководитель: ${esc(leader.name)}</div>` : ''}
+                            <div class="org-emps">${cards}</div>
+                          </details>
+                        `;
+                      }).join('')}
+                    </div>
                   </div>
-                </div>
-              `;
-            }).join('')}
+                `;
+              }).join('')}
+            </div>
           </div>
-        </div>
+        </details>
       `;
     }).join('');
 
@@ -125,7 +137,7 @@
           <span class="org-holding-icon">🏢</span>
           <span class="org-holding-title">ИНБРЕНД (Холдинг)</span>
         </div>
-        <div class="org-holding-body">
+        <div class="org-brands-container">
           ${brandsHtml}
         </div>
       </div>
