@@ -149,7 +149,7 @@ nav { display: flex; gap: 10px; flex-wrap: wrap; margin: 24px 0; }
 .tab.active { background: #c90048; color: #fff; border-color: #c90048; }
 
 /* ===== Схема (дивизиональная структура) ===== */
-main.wide { max-width: 1300px; } /* Сузил, чтобы карточки не растягивались слишком сильно */
+main.wide { max-width: 1600px; } /* Шире, чтобы влезли 4 бренда в ряд */
 
 .schema-controls {
   display: flex;
@@ -187,79 +187,131 @@ main.wide { max-width: 1300px; } /* Сузил, чтобы карточки не
   background: #fdf2f6;
   border: 2px solid #c90048;
   border-radius: 16px;
-  padding: 20px;
-  margin-bottom: 24px;
+  padding: 24px;
 }
 
 .org-holding-header {
   text-align: center;
-  font-size: 18px;
+  font-size: 20px;
   font-weight: 700;
   color: #c90048;
-  margin-bottom: 20px;
+  margin-bottom: 24px;
   display: flex;
   justify-content: center;
+  align-items: center;
+  gap: 10px;
+}
+
+/* 2) Контейнер для брендов (в ряд) */
+.org-brands-container {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+
+/* 3) Бренд (раскрывающийся) */
+details.org-brand-details {
+  flex: 1 1 320px;
+  min-width: 280px;
+  max-width: 400px;
+  background: #fff;
+  border: 1px solid #e8e9ec;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+
+details.org-brand-details > summary {
+  list-style: none;
+  cursor: pointer;
+  padding: 14px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  background: #fff;
+  border-bottom: 1px solid #eef0f3;
+  transition: background .15s;
+}
+details.org-brand-details > summary::-webkit-details-marker { display: none; }
+details.org-brand-details > summary:hover { background: #fafbfc; }
+
+.org-brand-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #c90048;
+}
+.org-brand-meta {
+  display: flex;
   align-items: center;
   gap: 8px;
 }
 
-.org-holding-body {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
+/* Иконка-стрелочка для бренда */
+.org-toggle-icon {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  background: #f1f5f9;
+  border-radius: 50%;
+  position: relative;
+  transition: transform .2s;
+}
+.org-toggle-icon::before {
+  content: '▾';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 12px;
+  color: #64748b;
+}
+details.org-brand-details[open] .org-toggle-icon {
+  transform: rotate(180deg);
 }
 
-/* 2) Бренды */
-.org-brand {
-  background: #fff;
-  border: 1px solid #e8e9ec;
-  border-radius: 12px;
-  padding: 16px;
+/* 4) Тело бренда */
+.org-brand-body {
+  padding: 12px;
+  background: #fafbfc;
 }
 
-.org-brand-title {
-  font-size: 16px;
-  font-weight: 700;
-  color: #c90048;
-  margin-bottom: 14px;
-  padding-bottom: 8px;
-  border-bottom: 1px solid #eef0f3;
-}
-
-/* 3) Департаменты (фиолетовые блоки) */
-.org-divisions { display: flex; flex-direction: column; gap: 12px; }
+/* 5) Департаменты (фиолетовые) */
+.org-divisions { display: flex; flex-direction: column; gap: 10px; }
 
 .org-division {
-  background: #faf5ff; /* светло-фиолетовый фон */
+  background: #faf5ff;
   border: 1px solid #e0d4f7;
-  border-left: 4px solid #7c3aed;
-  border-radius: 10px;
-  padding: 12px;
+  border-left: 3px solid #7c3aed;
+  border-radius: 8px;
+  padding: 10px;
 }
 .org-division-title {
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 700;
   color: #5b21b6;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 4px;
 }
 
-/* 4) Отделы (синие аккордеоны) */
-.org-depts { display: flex; flex-direction: column; gap: 8px; }
+/* 6) Отделы (синие аккордеоны) */
+.org-depts { display: flex; flex-direction: column; gap: 6px; }
 
 details.org-dept {
   background: #fff;
   border: 1px solid #e2e8f0;
   border-left: 3px solid #2563eb;
-  border-radius: 8px;
+  border-radius: 6px;
   overflow: hidden;
 }
 details.org-dept > summary {
   list-style: none;
   cursor: pointer;
-  padding: 10px 12px;
+  padding: 8px 10px;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -270,8 +322,8 @@ details.org-dept > summary::-webkit-details-marker { display: none; }
 details.org-dept > summary::before {
   content: '▸';
   color: #2563eb;
-  font-size: 14px;
-  margin-right: 6px;
+  font-size: 12px;
+  margin-right: 4px;
   transition: transform .15s;
   display: inline-block;
 }
@@ -279,28 +331,28 @@ details.org-dept[open] > summary::before { transform: rotate(90deg); }
 details.org-dept > summary:hover { background: #f8fafc; }
 
 .org-dept-title {
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 650;
   color: #1e40af;
   flex: 1;
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 4px;
 }
 .org-badge {
   background: #e8f0fe;
   color: #1a56db;
-  padding: 2px 8px;
+  padding: 2px 6px;
   border-radius: 12px;
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 600;
   white-space: nowrap;
 }
 
 .org-dept-leader {
-  font-size: 12px;
+  font-size: 11px;
   color: #475569;
-  padding: 6px 12px;
+  padding: 6px 10px;
   background: #f1f5f9;
   border-bottom: 1px solid #e2e8f0;
 }
@@ -308,15 +360,21 @@ details.org-dept > summary:hover { background: #f8fafc; }
 .org-emps {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  padding: 10px 12px;
+  gap: 4px;
+  padding: 8px 10px;
 }
 .org-emp {
   background: #f8fafc;
   border: 1px solid #eef0f3;
-  border-radius: 6px;
-  padding: 8px 10px;
+  border-radius: 4px;
+  padding: 6px 8px;
 }
 .org-emp.vacancy { background: #fffaf0; border-color: #f5d9a8; }
-.org-emp-name { font-size: 13px; font-weight: 600; color: #20242c; }
+.org-emp-name { font-size: 12px; font-weight: 600; color: #20242c; }
 .org-emp-pos { font-size: 11px; color: #64748b; margin-top: 2px; }
+
+/* Адаптив: на мобильных бренды встают в колонку */
+@media (max-width: 900px) {
+  .org-brands-container { flex-direction: column; align-items: stretch; }
+  details.org-brand-details { max-width: none; }
+}
