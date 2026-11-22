@@ -149,7 +149,7 @@ nav { display: flex; gap: 10px; flex-wrap: wrap; margin: 24px 0; }
 .tab.active { background: #c90048; color: #fff; border-color: #c90048; }
 
 /* ===== Схема (дивизиональная структура) ===== */
-main.wide { max-width: 1500px; }
+main.wide { max-width: 1300px; } /* Сузил, чтобы карточки не растягивались слишком сильно */
 
 .schema-controls {
   display: flex;
@@ -178,142 +178,79 @@ main.wide { max-width: 1500px; }
   background: #fff;
   border: 1px solid #e8e9ec;
   border-radius: 16px;
-  padding: 24px 20px 40px;
+  padding: 30px;
   overflow-x: auto;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
 }
 
-/* 1) Холдинг — раскрывающийся блок сверху */
-details.org-root {
-  width: 100%;
-  max-width: 1300px;
-  border: 2px solid #20242c;
-  border-radius: 14px;
-  background: #fff;
-  overflow: hidden;
-}
-details.org-root > summary {
-  list-style: none;
-  cursor: pointer;
-  background: #20242c;
-  color: #fff;
-  padding: 16px 24px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 12px;
-  font-weight: 700;
-  font-size: 18px;
-  transition: background .15s;
-}
-details.org-root > summary::-webkit-details-marker { display: none; }
-details.org-root > summary::before {
-  content: '▸';
-  font-size: 16px;
-  margin-right: 10px;
-  transition: transform .15s;
-  display: inline-block;
-}
-details.org-root[open] > summary::before { transform: rotate(90deg); }
-details.org-root > summary:hover { background: #2b3039; }
-
-.org-root-title { flex: 1; }
-.org-root-count {
-  font-size: 13px;
-  font-weight: 500;
-  opacity: .85;
-  white-space: nowrap;
-}
-
-.org-root-body {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 0 20px 24px;
-}
-
-/* 2) Вертикальная линия от холдинга вниз */
-.org-trunk {
-  width: 2px;
-  height: 28px;
-  background: #d0d5dd;
-}
-
-/* 3) Ряд брендов */
-.org-brands {
-  display: flex;
-  gap: 24px;
-  justify-content: center;
-  align-items: flex-start;
-  flex-wrap: wrap;
-  position: relative;
-  width: 100%;
-}
-
-.org-brands::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 12%;
-  right: 12%;
-  height: 2px;
-  background: #d0d5dd;
-}
-
-/* 4) Бренд */
-.org-brand {
-  flex: 1 1 280px;
-  min-width: 260px;
-  max-width: 380px;
+/* 1) Главная карточка ИНБРЕНД (Холдинг) */
+.org-holding-card {
   background: #fdf2f6;
   border: 2px solid #c90048;
-  border-radius: 14px;
-  padding: 16px;
-  position: relative;
-  margin-top: 28px;
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 24px;
 }
 
-.org-brand-branch {
-  position: absolute;
-  top: -28px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 2px;
-  height: 28px;
-  background: #d0d5dd;
+.org-holding-header {
+  text-align: center;
+  font-size: 18px;
+  font-weight: 700;
+  color: #c90048;
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+}
+
+.org-holding-body {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* 2) Бренды */
+.org-brand {
+  background: #fff;
+  border: 1px solid #e8e9ec;
+  border-radius: 12px;
+  padding: 16px;
 }
 
 .org-brand-title {
   font-size: 16px;
   font-weight: 700;
   color: #c90048;
-  text-align: center;
   margin-bottom: 14px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #eef0f3;
 }
 
+/* 3) Департаменты (фиолетовые блоки) */
 .org-divisions { display: flex; flex-direction: column; gap: 12px; }
 
 .org-division {
-  background: #fff;
+  background: #faf5ff; /* светло-фиолетовый фон */
   border: 1px solid #e0d4f7;
   border-left: 4px solid #7c3aed;
   border-radius: 10px;
-  padding: 10px 12px;
+  padding: 12px;
 }
 .org-division-title {
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 700;
   color: #5b21b6;
-  margin-bottom: 8px;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
-.org-depts { display: flex; flex-direction: column; gap: 6px; }
+/* 4) Отделы (синие аккордеоны) */
+.org-depts { display: flex; flex-direction: column; gap: 8px; }
 
-/* Отдел — раскрывающийся */
 details.org-dept {
-  background: #f8fafc;
+  background: #fff;
   border: 1px solid #e2e8f0;
   border-left: 3px solid #2563eb;
   border-radius: 8px;
@@ -322,7 +259,7 @@ details.org-dept {
 details.org-dept > summary {
   list-style: none;
   cursor: pointer;
-  padding: 8px 10px;
+  padding: 10px 12px;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -333,24 +270,27 @@ details.org-dept > summary::-webkit-details-marker { display: none; }
 details.org-dept > summary::before {
   content: '▸';
   color: #2563eb;
-  font-size: 12px;
-  margin-right: 4px;
+  font-size: 14px;
+  margin-right: 6px;
   transition: transform .15s;
   display: inline-block;
 }
 details.org-dept[open] > summary::before { transform: rotate(90deg); }
-details.org-dept > summary:hover { background: #eef2f7; }
+details.org-dept > summary:hover { background: #f8fafc; }
 
 .org-dept-title {
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 650;
   color: #1e40af;
   flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 .org-badge {
   background: #e8f0fe;
   color: #1a56db;
-  padding: 2px 7px;
+  padding: 2px 8px;
   border-radius: 12px;
   font-size: 11px;
   font-weight: 600;
@@ -358,33 +298,25 @@ details.org-dept > summary:hover { background: #eef2f7; }
 }
 
 .org-dept-leader {
-  font-size: 11px;
+  font-size: 12px;
   color: #475569;
-  padding: 4px 10px;
-  border-bottom: 1px dashed #e2e8f0;
+  padding: 6px 12px;
+  background: #f1f5f9;
+  border-bottom: 1px solid #e2e8f0;
 }
 
 .org-emps {
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  padding: 8px 10px 10px;
+  gap: 6px;
+  padding: 10px 12px;
 }
 .org-emp {
-  background: #fff;
+  background: #f8fafc;
   border: 1px solid #eef0f3;
   border-radius: 6px;
-  padding: 6px 8px;
+  padding: 8px 10px;
 }
 .org-emp.vacancy { background: #fffaf0; border-color: #f5d9a8; }
-.org-emp-name { font-size: 12px; font-weight: 600; color: #20242c; }
-.org-emp-pos { font-size: 11px; color: #64748b; }
-
-@media (max-width: 700px) {
-  .org-brands { flex-direction: column; align-items: stretch; }
-  .org-brand { max-width: none; }
-  .org-brands::before,
-  .org-brand-branch { display: none; }
-  .org-brand { margin-top: 16px; }
-  details.org-root > summary { font-size: 16px; padding: 14px 18px; }
-}
+.org-emp-name { font-size: 13px; font-weight: 600; color: #20242c; }
+.org-emp-pos { font-size: 11px; color: #64748b; margin-top: 2px; }
