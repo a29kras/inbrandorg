@@ -58,7 +58,7 @@
     return [...known, ...unknown];
   }
 
-         function render(tree, total) {
+        function render(tree, total) {
     $('count').textContent = `Всего сотрудников: ${total}`;
 
     const brands = sortBrands([...tree.keys()]);
@@ -71,15 +71,18 @@
       const byDiv = tree.get(brand);
       const divs = [...byDiv.keys()].sort((a, b) => a.localeCompare(b, 'ru'));
       
-      // Считаем общее количество сотрудников в бренде
       const brandItems = [...byDiv.values()].flatMap(m => [...m.values()].flat());
       const totalEmp = brandItems.filter(e => e.status !== 'Вакансия').length;
       const vac = brandItems.filter(e => e.status === 'Вакансия').length;
 
+      // Если бренд называется "ИНБРЕНД (Холдинг)" или "Холдинг", ставим ему иконку портфеля
+      const isHolding = /холдинг/i.test(brand);
+      const icon = isHolding ? '💼' : '🏷';
+
       return `
         <details class="org-brand-details" open>
           <summary class="org-brand-summary">
-            <span class="org-brand-title">🏷 ${esc(brand)}</span>
+            <span class="org-brand-title">${icon} ${esc(brand)}</span>
             <span class="org-brand-meta">
               <span class="org-badge">${totalEmp} сотр.${vac ? ` · ${vac} вак.` : ''}</span>
               <span class="org-toggle-icon"></span>
@@ -111,7 +114,7 @@
                           `).join('');
 
                         return `
-                          <details class="org-dept">
+                          <details class="org-dept" open>
                             <summary>
                               <span class="org-dept-title">🏢 ${esc(dept)}</span>
                               <span class="org-badge">${dTotal} сотр.${dVac ? ` · ${dVac} вак.` : ''}</span>
@@ -131,35 +134,11 @@
       `;
     }).join('');
 
+    // Убираем лишние обертки, просто выводим ряд брендов
     const html = `
-      <div class="org-holding-card">
-        <div class="org-holding-header">
-          <span class="org-holding-icon">🏢</span>
-          <span class="org-holding-title">ИНБРЕНД (Холдинг)</span>
-        </div>
-        <div class="org-brands-container">
-          ${brandsHtml}
-        </div>
+      <div class="org-brands-container">
+        ${brandsHtml}
       </div>
     `;
     $('schema').innerHTML = html;
   }
-
-  try {
-    $('intro').textContent = 'Дивизиональная структура: холдинг → бренды → департаменты → отделы. Нажмите на отдел, чтобы раскрыть сотрудников.';
-    const employees = await loadFromSheet();
-    const tree = buildTree(employees);
-    render(tree, employees.length);
-
-    // Кнопки «Раскрыть все» / «Свернуть все»
-       $('expand-all').addEventListener('click', () => {
-      document.querySelectorAll('#schema details').forEach(d => d.open = true);
-    });
-    $('collapse-all').addEventListener('click', () => {
-      document.querySelectorAll('#schema details').forEach(d => d.open = false);
-    });
-  } catch (e) {
-    $('count').textContent = e.message;
-    $('count').className = 'error';
-  }
-})();
