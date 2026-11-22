@@ -7,6 +7,9 @@
   const SHEET_ID = "10898Bo6l9yyogVuuqIAfZjhvQgl1TxKU-5QX4T_IF8A";
   const SHEET_NAME = "Сотрудники";
 
+  // Жёсткий порядок брендов
+  const BRAND_ORDER = ["ЧИО ЧИО", "БИГБРО", "ПЛОЩАДКА", "ИНДИ"];
+
   async function loadFromSheet() {
     const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(SHEET_NAME)}`;
     const resp = await fetch(url);
@@ -33,7 +36,6 @@
   }
 
   function buildTree(list) {
-    // Бренд → Департамент → Отдел → массив сотрудников
     const tree = new Map();
     for (const e of list) {
       const brand = e.brand || 'Без бренда';
@@ -49,10 +51,17 @@
     return tree;
   }
 
+  // Сортировка брендов по заданному порядку, остальные — в конце по алфавиту
+  function sortBrands(brands) {
+    const known = BRAND_ORDER.filter(b => brands.includes(b));
+    const unknown = brands.filter(b => !BRAND_ORDER.includes(b)).sort((a, b) => a.localeCompare(b, 'ru'));
+    return [...known, ...unknown];
+  }
+
   function render(tree, total) {
     $('count').textContent = `Всего сотрудников: ${total}`;
 
-    const brands = [...tree.keys()].sort((a, b) => a.localeCompare(b, 'ru'));
+    const brands = sortBrands([...tree.keys()]);
     if (!brands.length) {
       $('schema').innerHTML = '<p>Нет данных.</p>';
       return;
@@ -81,14 +90,26 @@
                           const totalEmp = items.filter(e => e.status !== 'Вакансия').length;
                           const vac = items.filter(e => e.status === 'Вакансия').length;
                           const leader = items.find(e => /руководител|директор|главн/i.test(e.position));
-                          return `
-                            <div class="org-dept">
-                              <div class="org-dept-title">🏢 ${esc(dept)}</div>
-                              <div class="org-dept-meta">
-                                ${leader ? `<span>${esc(leader.name)}</span>` : ''}
-                                <span class="org-badge">${totalEmp} сотр.${vac ? ` · ${vac} вак.` : ''}</span>
+
+                          const cards = items
+                            .slice()
+                            .sort((a, b) => a.name.localeCompare(b.name, 'ru'))
+                            .map(e => `
+                              <div class="org-emp ${e.status === 'Вакансия' ? 'vacancy' : ''}">
+                                <div class="org-emp-name">${esc(e.name)}</div>
+                                <div class="org-emp-pos">${esc(e.position || '—')}</div>
                               </div>
-                            </div>
+                            `).join('');
+
+                          return `
+                            <details class="org-dept">
+                              <summary>
+                                <span class="org-dept-title">🏢 ${esc(dept)}</span>
+                                <span class="org-badge">${totalEmp} сотр.${vac ? ` · ${vac} вак.` : ''}</span>
+                              </summary>
+                              ${leader ? `<div class="org-dept-leader">Руководитель: ${esc(leader.name)}</div>` : ''}
+                              <div class="org-emps">${cards}</div>
+                            </details>
                           `;
                         }).join('')}
                       </div>
@@ -105,10 +126,18 @@
   }
 
   try {
-    $('intro').textContent = 'Дивизиональная структура: бренды → департаменты → отделы.';
+    $('intro').textContent = 'Дивизиональная структура: холдинг → бренды → департаменты → отделы. Нажмите на отдел, чтобы раскрыть сотрудников.';
     const employees = await loadFromSheet();
     const tree = buildTree(employees);
     render(tree, employees.length);
+
+    // Кнопки «Раскрыть все» / «Свернуть все»
+    $('expand-all').addEventListener('click', () => {
+      document.querySelectorAll('#schema details.org-dept').forEach(d => d.open = true);
+    });
+    $('collapse-all').addEventListener('click', () => {
+      document.querySelectorAll('#schema details.org-dept').forEach(d => d.open = false);
+    });
   } catch (e) {
     $('count').textContent = e.message;
     $('count').className = 'error';
