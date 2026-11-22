@@ -143,11 +143,11 @@
     render(tree, employees.length);
 
     // Кнопки «Раскрыть все» / «Свернуть все»
-    $('expand-all').addEventListener('click', () => {
-      document.querySelectorAll('#schema details.org-dept').forEach(d => d.open = true);
+       $('expand-all').addEventListener('click', () => {
+      document.querySelectorAll('#schema details').forEach(d => d.open = true);
     });
     $('collapse-all').addEventListener('click', () => {
-      document.querySelectorAll('#schema details.org-dept').forEach(d => d.open = false);
+      document.querySelectorAll('#schema details').forEach(d => d.open = false);
     });
   } catch (e) {
     $('count').textContent = e.message;
