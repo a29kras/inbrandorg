@@ -58,7 +58,7 @@
     return [...known, ...unknown];
   }
 
-      function render(tree, total) {
+        function render(tree, total) {
     $('count').textContent = `Всего сотрудников: ${total}`;
 
     const brands = sortBrands([...tree.keys()]);
@@ -67,13 +67,13 @@
       return;
     }
 
+    // Формируем содержимое главного блока "ИНБРЕНД (Холдинг)"
     const brandsHtml = brands.map(brand => {
       const byDiv = tree.get(brand);
       const divs = [...byDiv.keys()].sort((a, b) => a.localeCompare(b, 'ru'));
 
       return `
         <div class="org-brand">
-          <div class="org-brand-branch"></div>
           <div class="org-brand-title">🏷 ${esc(brand)}</div>
           <div class="org-divisions">
             ${divs.map(div => {
@@ -120,18 +120,15 @@
     }).join('');
 
     const html = `
-      <details class="org-root" open>
-        <summary>
-          <span class="org-root-title">🏛 ИНБРЕНД (Холдинг)</span>
-          <span class="org-root-count">${brands.length} бренда</span>
-        </summary>
-        <div class="org-root-body">
-          <div class="org-trunk"></div>
-          <div class="org-brands">
-            ${brandsHtml}
-          </div>
+      <div class="org-holding-card">
+        <div class="org-holding-header">
+          <span class="org-holding-icon">🏢</span>
+          <span class="org-holding-title">ИНБРЕНД (Холдинг)</span>
         </div>
-      </details>
+        <div class="org-holding-body">
+          ${brandsHtml}
+        </div>
+      </div>
     `;
     $('schema').innerHTML = html;
   }
