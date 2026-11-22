@@ -178,23 +178,60 @@ main.wide { max-width: 1500px; }
   background: #fff;
   border: 1px solid #e8e9ec;
   border-radius: 16px;
-  padding: 30px 20px 40px;
+  padding: 24px 20px 40px;
   overflow-x: auto;
   display: flex;
   flex-direction: column;
-  align-items: center;   /* всё по центру по горизонтали */
+  align-items: center;
 }
 
-/* 1) Холдинг — наверху */
-.org-root {
+/* 1) Холдинг — раскрывающийся блок сверху */
+details.org-root {
+  width: 100%;
+  max-width: 1300px;
+  border: 2px solid #20242c;
+  border-radius: 14px;
+  background: #fff;
+  overflow: hidden;
+}
+details.org-root > summary {
+  list-style: none;
+  cursor: pointer;
   background: #20242c;
   color: #fff;
+  padding: 16px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
   font-weight: 700;
   font-size: 18px;
-  padding: 16px 32px;
-  border-radius: 10px;
-  text-align: center;
-  z-index: 2;
+  transition: background .15s;
+}
+details.org-root > summary::-webkit-details-marker { display: none; }
+details.org-root > summary::before {
+  content: '▸';
+  font-size: 16px;
+  margin-right: 10px;
+  transition: transform .15s;
+  display: inline-block;
+}
+details.org-root[open] > summary::before { transform: rotate(90deg); }
+details.org-root > summary:hover { background: #2b3039; }
+
+.org-root-title { flex: 1; }
+.org-root-count {
+  font-size: 13px;
+  font-weight: 500;
+  opacity: .85;
+  white-space: nowrap;
+}
+
+.org-root-body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0 20px 24px;
 }
 
 /* 2) Вертикальная линия от холдинга вниз */
@@ -215,7 +252,6 @@ main.wide { max-width: 1500px; }
   width: 100%;
 }
 
-/* Горизонтальная линия, соединяющая бренды, — на уровне их «веток» */
 .org-brands::before {
   content: '';
   position: absolute;
@@ -236,10 +272,9 @@ main.wide { max-width: 1500px; }
   border-radius: 14px;
   padding: 16px;
   position: relative;
-  margin-top: 28px;      /* отступ под горизонтальную линию */
+  margin-top: 28px;
 }
 
-/* Вертикальная «ветка» от горизонтальной линии к бренду */
 .org-brand-branch {
   position: absolute;
   top: -28px;
@@ -351,5 +386,5 @@ details.org-dept > summary:hover { background: #eef2f7; }
   .org-brands::before,
   .org-brand-branch { display: none; }
   .org-brand { margin-top: 16px; }
-  .org-root { display: block; text-align: center; }
+  details.org-root > summary { font-size: 16px; padding: 14px 18px; }
 }
