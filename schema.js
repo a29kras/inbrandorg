@@ -58,7 +58,7 @@
     return [...known, ...unknown];
   }
 
-    function render(tree, total) {
+      function render(tree, total) {
     $('count').textContent = `Всего сотрудников: ${total}`;
 
     const brands = sortBrands([...tree.keys()]);
@@ -67,62 +67,71 @@
       return;
     }
 
+    const brandsHtml = brands.map(brand => {
+      const byDiv = tree.get(brand);
+      const divs = [...byDiv.keys()].sort((a, b) => a.localeCompare(b, 'ru'));
+
+      return `
+        <div class="org-brand">
+          <div class="org-brand-branch"></div>
+          <div class="org-brand-title">🏷 ${esc(brand)}</div>
+          <div class="org-divisions">
+            ${divs.map(div => {
+              const byDept = byDiv.get(div);
+              const depts = [...byDept.keys()].sort((a, b) => a.localeCompare(b, 'ru'));
+              return `
+                <div class="org-division">
+                  <div class="org-division-title">🏛 ${esc(div)}</div>
+                  <div class="org-depts">
+                    ${depts.map(dept => {
+                      const items = byDept.get(dept);
+                      const totalEmp = items.filter(e => e.status !== 'Вакансия').length;
+                      const vac = items.filter(e => e.status === 'Вакансия').length;
+                      const leader = items.find(e => /руководител|директор|главн/i.test(e.position));
+
+                      const cards = items
+                        .slice()
+                        .sort((a, b) => a.name.localeCompare(b.name, 'ru'))
+                        .map(e => `
+                          <div class="org-emp ${e.status === 'Вакансия' ? 'vacancy' : ''}">
+                            <div class="org-emp-name">${esc(e.name)}</div>
+                            <div class="org-emp-pos">${esc(e.position || '—')}</div>
+                          </div>
+                        `).join('');
+
+                      return `
+                        <details class="org-dept">
+                          <summary>
+                            <span class="org-dept-title">🏢 ${esc(dept)}</span>
+                            <span class="org-badge">${totalEmp} сотр.${vac ? ` · ${vac} вак.` : ''}</span>
+                          </summary>
+                          ${leader ? `<div class="org-dept-leader">Руководитель: ${esc(leader.name)}</div>` : ''}
+                          <div class="org-emps">${cards}</div>
+                        </details>
+                      `;
+                    }).join('')}
+                  </div>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        </div>
+      `;
+    }).join('');
+
     const html = `
-      <div class="org-root">ИНБРЕНД (Холдинг)</div>
-      <div class="org-trunk"></div>
-      <div class="org-brands">
-        ${brands.map(brand => {
-          const byDiv = tree.get(brand);
-          const divs = [...byDiv.keys()].sort((a, b) => a.localeCompare(b, 'ru'));
-
-          return `
-            <div class="org-brand">
-              <div class="org-brand-branch"></div>
-              <div class="org-brand-title">🏷 ${esc(brand)}</div>
-              <div class="org-divisions">
-                ${divs.map(div => {
-                  const byDept = byDiv.get(div);
-                  const depts = [...byDept.keys()].sort((a, b) => a.localeCompare(b, 'ru'));
-                  return `
-                    <div class="org-division">
-                      <div class="org-division-title">🏛 ${esc(div)}</div>
-                      <div class="org-depts">
-                        ${depts.map(dept => {
-                          const items = byDept.get(dept);
-                          const totalEmp = items.filter(e => e.status !== 'Вакансия').length;
-                          const vac = items.filter(e => e.status === 'Вакансия').length;
-                          const leader = items.find(e => /руководител|директор|главн/i.test(e.position));
-
-                          const cards = items
-                            .slice()
-                            .sort((a, b) => a.name.localeCompare(b.name, 'ru'))
-                            .map(e => `
-                              <div class="org-emp ${e.status === 'Вакансия' ? 'vacancy' : ''}">
-                                <div class="org-emp-name">${esc(e.name)}</div>
-                                <div class="org-emp-pos">${esc(e.position || '—')}</div>
-                              </div>
-                            `).join('');
-
-                          return `
-                            <details class="org-dept">
-                              <summary>
-                                <span class="org-dept-title">🏢 ${esc(dept)}</span>
-                                <span class="org-badge">${totalEmp} сотр.${vac ? ` · ${vac} вак.` : ''}</span>
-                              </summary>
-                              ${leader ? `<div class="org-dept-leader">Руководитель: ${esc(leader.name)}</div>` : ''}
-                              <div class="org-emps">${cards}</div>
-                            </details>
-                          `;
-                        }).join('')}
-                      </div>
-                    </div>
-                  `;
-                }).join('')}
-              </div>
-            </div>
-          `;
-        }).join('')}
-      </div>
+      <details class="org-root" open>
+        <summary>
+          <span class="org-root-title">🏛 ИНБРЕНД (Холдинг)</span>
+          <span class="org-root-count">${brands.length} бренда</span>
+        </summary>
+        <div class="org-root-body">
+          <div class="org-trunk"></div>
+          <div class="org-brands">
+            ${brandsHtml}
+          </div>
+        </div>
+      </details>
     `;
     $('schema').innerHTML = html;
   }
