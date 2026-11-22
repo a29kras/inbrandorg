@@ -274,3 +274,202 @@ main.wide { max-width: 1500px; }
   .org-brands::before, .org-brand::before { display: none; }
   .org-root { left: auto; transform: none; display: block; text-align: center; }
 }
+
+/* ===== Схема (дивизиональная структура) ===== */
+main.wide { max-width: 1500px; }
+
+.schema-controls {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin: 0 0 18px;
+}
+.schema-controls button {
+  padding: 10px 18px;
+  border-radius: 8px;
+  border: 1px solid #c90048;
+  background: #c90048;
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background .15s;
+}
+.schema-controls button:hover { background: #a8003c; }
+.schema-controls button#collapse-all {
+  background: #fff;
+  color: #c90048;
+}
+.schema-controls button#collapse-all:hover { background: #fdf2f6; }
+
+.schema {
+  background: #fff;
+  border: 1px solid #e8e9ec;
+  border-radius: 16px;
+  padding: 30px 20px;
+  overflow-x: auto;
+}
+
+/* Холдинг — во главе */
+.org-root {
+  display: table;
+  margin: 0 auto 30px;
+  background: #20242c;
+  color: #fff;
+  font-weight: 700;
+  font-size: 18px;
+  padding: 16px 32px;
+  border-radius: 10px;
+  text-align: center;
+  position: relative;
+}
+.org-root::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: -30px;
+  width: 2px;
+  height: 30px;
+  background: #d0d5dd;
+}
+
+.org-brands {
+  display: flex;
+  gap: 24px;
+  justify-content: center;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  position: relative;
+  padding-top: 30px;
+}
+.org-brands::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 10%;
+  right: 10%;
+  height: 2px;
+  background: #d0d5dd;
+}
+
+.org-brand {
+  flex: 1 1 280px;
+  min-width: 260px;
+  max-width: 380px;
+  background: #fdf2f6;
+  border: 2px solid #c90048;
+  border-radius: 14px;
+  padding: 16px;
+  position: relative;
+  margin-top: 20px;
+}
+.org-brand::before {
+  content: '';
+  position: absolute;
+  top: -20px;
+  left: 50%;
+  width: 2px;
+  height: 20px;
+  background: #d0d5dd;
+}
+
+.org-brand-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #c90048;
+  text-align: center;
+  margin-bottom: 14px;
+}
+
+.org-divisions { display: flex; flex-direction: column; gap: 12px; }
+
+.org-division {
+  background: #fff;
+  border: 1px solid #e0d4f7;
+  border-left: 4px solid #7c3aed;
+  border-radius: 10px;
+  padding: 10px 12px;
+}
+.org-division-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #5b21b6;
+  margin-bottom: 8px;
+}
+
+.org-depts { display: flex; flex-direction: column; gap: 6px; }
+
+/* Отдел — раскрывающийся */
+details.org-dept {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-left: 3px solid #2563eb;
+  border-radius: 8px;
+  overflow: hidden;
+}
+details.org-dept > summary {
+  list-style: none;
+  cursor: pointer;
+  padding: 8px 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  transition: background .15s;
+}
+details.org-dept > summary::-webkit-details-marker { display: none; }
+details.org-dept > summary::before {
+  content: '▸';
+  color: #2563eb;
+  font-size: 12px;
+  margin-right: 4px;
+  transition: transform .15s;
+  display: inline-block;
+}
+details.org-dept[open] > summary::before { transform: rotate(90deg); }
+details.org-dept > summary:hover { background: #eef2f7; }
+
+.org-dept-title {
+  font-size: 12px;
+  font-weight: 650;
+  color: #1e40af;
+  flex: 1;
+}
+.org-badge {
+  background: #e8f0fe;
+  color: #1a56db;
+  padding: 2px 7px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.org-dept-leader {
+  font-size: 11px;
+  color: #475569;
+  padding: 4px 10px;
+  border-bottom: 1px dashed #e2e8f0;
+}
+
+.org-emps {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 8px 10px 10px;
+}
+.org-emp {
+  background: #fff;
+  border: 1px solid #eef0f3;
+  border-radius: 6px;
+  padding: 6px 8px;
+}
+.org-emp.vacancy { background: #fffaf0; border-color: #f5d9a8; }
+.org-emp-name { font-size: 12px; font-weight: 600; color: #20242c; }
+.org-emp-pos { font-size: 11px; color: #64748b; }
+
+@media (max-width: 700px) {
+  .org-brands { flex-direction: column; align-items: stretch; }
+  .org-brand { max-width: none; }
+  .org-brands::before, .org-brand::before, .org-root::after { display: none; }
+  .org-root { display: block; text-align: center; }
+}
