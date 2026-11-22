@@ -28,3 +28,39 @@
   <script src="schema.js"></script>
 </body>
 </html>
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Оргструктура ИНБРЕНД — Схема</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="wide">
+    <header>
+      <div>
+        <h1>Оргструктура ИНБРЕНД</h1>
+        <p id="intro">Дивизиональная структура: холдинг → бренды → департаменты → отделы. Нажмите на отдел, чтобы раскрыть сотрудников.</p>
+      </div>
+    </header>
+
+    <nav>
+      <a class="tab" href="index.html">Список</a>
+      <a class="tab active" href="schema.html">Схема (дивизиональная)</a>
+    </nav>
+
+    <div class="schema-controls">
+      <button id="expand-all" type="button">Раскрыть все списки</button>
+      <button id="collapse-all" type="button">Свернуть все</button>
+    </div>
+
+    <p id="count">Загрузка…</p>
+    <div id="schema" class="schema"></div>
+    <p id="status" class="error"></p>
+  </main>
+
+  <script src="schema.js"></script>
+</body>
+</html>
